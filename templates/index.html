@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Recommender (Flask)</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <h1>🎬 Movie Recommender</h1>
+    <p class="subtitle">Powered by Python + Flask + pandas</p>
+  </div>
+
+  <form method="POST" class="controls-card">
+    <div class="lang-toggle">
+      <label class="lang-option">
+        <input type="radio" name="language" value="all" {% if selected_language == 'all' %}checked{% endif %}>
+        <span>All</span>
+      </label>
+      {% for lang in all_languages %}
+      <label class="lang-option">
+        <input type="radio" name="language" value="{{ lang }}" {% if selected_language == lang %}checked{% endif %}>
+        <span>{{ lang }}</span>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="genre-section">
+      <label class="section-label">Select genres you like</label>
+      <div class="genre-grid">
+        {% for genre in all_genres %}
+        <label class="genre-chip {% if genre in selected_genres %}selected{% endif %}">
+          <input type="checkbox" name="genres" value="{{ genre }}"
+                 {% if genre in selected_genres %}checked{% endif %}>
+          {{ genre }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="sort-row">
+      <label for="sort_by">Sort by:</label>
+      <select name="sort_by" id="sort_by">
+        <option value="match" {% if sort_by == 'match' %}selected{% endif %}>Best Match</option>
+        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Rating</option>
+        <option value="year" {% if sort_by == 'year' %}selected{% endif %}>Newest</option>
+      </select>
+    </div>
+
+    <button type="submit" class="recommend-btn">✨ Get Recommendations</button>
+  </form>
+
+  {% if results %}
+  <div class="results-section">
+    <div class="results-header">
+      <span>{{ results|length }} movie{{ 's' if results|length != 1 else '' }} found</span>
+    </div>
+    <div class="movie-grid">
+      {% for movie in results %}
+      <div class="movie-card">
+        <div class="movie-card-header">
+          <a href="{{ movie.youtube_link }}" target="_blank" rel="noopener noreferrer" class="movie-title">
+            {{ movie.title }} ▶
+          </a>
+          <div class="movie-year">{{ movie.year }}</div>
+        </div>
+        <div class="movie-genres">
+          {% for g in movie.genre_list %}
+          <span class="genre-tag">{{ g }}</span>
+          {% endfor %}
+        </div>
+        <div class="movie-footer">
+          <span class="movie-rating">⭐ {{ "%.1f"|format(movie.rating) }}</span>
+          <span class="movie-lang">{{ movie.language }}</span>
+          <span class="match-badge">{{ movie.match_score }} match</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% elif selected_genres %}
+  <div class="empty-state">No movies matched those genres. Try selecting different ones.</div>
+  {% else %}
+  <div class="empty-state">Select at least one genre above and click <strong>Get Recommendations</strong>.</div>
+  {% endif %}
+
+  <p class="credit">Developed by <strong>Manoj S</strong></p>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
